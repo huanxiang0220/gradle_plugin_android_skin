@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@mipmap/icon_next_page_500" android:state_enabled="true"/>
-    <item android:drawable="@mipmap/icon_next_page_not" android:state_enabled="false"/>
-</selector>

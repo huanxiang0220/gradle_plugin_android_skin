@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="@color/cursor" android:state_checked="false" android:state_enabled="true" />
-    <item android:color="@color/c_b1b1b1" android:state_checked="false" android:state_enabled="false" />
-    <item android:color="@color/colorBlue" android:state_checked="true"  android:state_enabled="true" />
-    <item android:color="@color/c_b1b1b1" android:state_checked="true"  android:state_enabled="false" />
-    <item android:color="@color/c_b1b1b1" />
-</selector>

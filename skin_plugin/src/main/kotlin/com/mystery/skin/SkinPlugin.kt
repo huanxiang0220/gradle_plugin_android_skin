@@ -23,7 +23,10 @@ class SkinPlugin : Plugin<Project> {
             }
 
             // 1. 找到 app_skin project
-            val skinProjectName = extension.skinProjectName
+            var skinProjectName = extension.skinProjectName
+            if (skinProjectName.startsWith(":")) {
+                skinProjectName = skinProjectName.substring(1)
+            }
             val skinProject = project.rootProject.findProject(":$skinProjectName")
             if (skinProject == null) {
                 println("SkinPlugin: Project :$skinProjectName not found.")
@@ -39,15 +42,23 @@ class SkinPlugin : Plugin<Project> {
                 task.description = "Builds and copies $skinProjectName $variantName apk to assets."
 
                 // 依赖 skinProject 的 assembleDebug
-                task.dependsOn(":$skinProjectName:assemble${capVariantName}")
+                val targetTaskPath = ":$skinProjectName:assemble${capVariantName}"
+                task.dependsOn(targetTaskPath)
+                println("SkinPlugin: Creating task ${task.name} which depends on $targetTaskPath")
 
                 task.doLast {
                     // 获取 apk 输出路径
                     val buildDir = skinProject.layout.buildDirectory.get().asFile
                     val apkDir = File(buildDir, "outputs/apk/$variantName")
                     
-                    // 查找 apk
-                    val apkFile = apkDir.listFiles()?.firstOrNull { it.name.endsWith(".apk") }
+                    // 查找 apk (支持子目录递归查找，以应对 Flavor 等情况)
+                    val apkFile = if (apkDir.exists()) {
+                        apkDir.walkTopDown()
+                            .filter { it.isFile && it.name.endsWith(".apk") && !it.name.contains("-unaligned") }
+                            .firstOrNull()
+                    } else {
+                        null
+                    }
                     
                     if (apkFile != null) {
                         val assetsDir = File(project.projectDir, extension.assetsDir)
@@ -59,7 +70,7 @@ class SkinPlugin : Plugin<Project> {
                         apkFile.copyTo(destFile, overwrite = true)
                         println("SkinPlugin: Copied ${apkFile.name} to ${destFile.absolutePath}")
                     } else {
-                        println("SkinPlugin: No apk found in ${apkDir.absolutePath}")
+                        println("SkinPlugin: No apk found in ${apkDir.absolutePath} or its subdirectories.")
                     }
                 }
             }
