@@ -5,12 +5,27 @@ plugins {
     id 'java-gradle-plugin'
 }
 
-targetCompatibility = JavaVersion.VERSION_11
-sourceCompatibility = JavaVersion.VERSION_11
+// 动态设置编译目标版本
+def currentJvm = JavaVersion.current()
+def targetJavaVersion
+
+if (currentJvm.isCompatibleWith(JavaVersion.VERSION_17)) {
+    // AGP 8.x 环境 (JDK 17+)
+    targetJavaVersion = JavaVersion.VERSION_17
+    println "SkinPlugin Build: JVM is ${currentJvm}, targeting Java 17 (AGP 8.x compatible)"
+} else {
+    // AGP 7.x 环境 (JDK 11)
+    // 虽然用户希望尝试 1.8，但 AGP 7.2.0 依赖要求 Java 11，因此这里降级到 11
+    targetJavaVersion = JavaVersion.VERSION_11
+    println "SkinPlugin Build: JVM is ${currentJvm}, targeting Java 11 (AGP 7.x compatible)"
+}
+
+targetCompatibility = targetJavaVersion
+sourceCompatibility = targetJavaVersion
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = targetJavaVersion.toString()
     }
 }
 
