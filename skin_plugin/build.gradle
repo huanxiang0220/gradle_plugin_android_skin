@@ -31,16 +31,16 @@ def agpDependencies = [
 dependencies {
 
     // 智能依赖策略：根据当前 JVM 版本决定依赖哪个版本的 AGP
-    // 如果是 Java 17+ 环境（通常用于 AGP 8.x），则引入 AGP 8.x 依赖以便编译
+    // 对于 7.x 分支，我们明确只依赖 7.x AGP
     // 如果是 Java 11 环境（通常用于 AGP 7.x），则只引入 AGP 7.x 依赖，避免 "Requires Java 17" 错误
-    if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_17)) {
-        println "SkinPlugin Build: Current JVM is ${JavaVersion.current()}, including AGP 8.7.0 dependencies."
-        agpDependencies['8.7.0'].each {
-            compileOnly(it)
-        }
-    } else {
-        println "SkinPlugin Build: Current JVM is ${JavaVersion.current()}, skipping AGP 8.7.0 dependencies to ensure compatibility."
-    }
+//    if (JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_17)) {
+//        println "SkinPlugin Build: Current JVM is ${JavaVersion.current()}, including AGP 8.7.0 dependencies."
+//        agpDependencies['8.7.0'].each {
+//            compileOnly(it)
+//        }
+//    } else {
+//        println "SkinPlugin Build: Current JVM is ${JavaVersion.current()}, skipping AGP 8.7.0 dependencies to ensure compatibility."
+//    }
     
     // 始终兼容 AGP 7.x (Java 11+)
     agpDependencies['7.2.0'].each {
