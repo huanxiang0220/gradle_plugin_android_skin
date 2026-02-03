@@ -42,73 +42,105 @@ class SkinPlugin : Plugin<Project> {
                 task.description = "Builds and copies $skinProjectName $variantName apk to assets."
 
                 // 依赖 skinProject 的 assembleDebug
+                // 注意：在 AGP 7.x + Run App 场景下，IDE 可能会直接调用 installDebug 而不一定完整触发 assembleDebug
+                // 这可能导致 outputs 目录没有生成标准 APK，而只有 intermediates。
+                // 
+                // 为了确保 outputs 优先，我们依然强制依赖 assembleDebug。
+                // 这样，只要执行了 copySkinDebugApk，就一定会触发 assembleDebug，从而生成 outputs。
+                //
+                // 但是，如果用户觉得每次 Run App 都触发完整 assembleDebug 太慢（虽然 Gradle 有增量构建），
+                // 或者在某些特殊情况下 outputs 依然没生成（如配置缓存问题），
+                // 我们的回退策略（potentialDirs）会负责去 intermediates 找。
+                
                 val targetTaskPath = ":$skinProjectName:assemble${capVariantName}"
+                
+                // 强制依赖 assembleDebug
                 task.dependsOn(targetTaskPath)
                 println("SkinPlugin: Creating task ${task.name} which depends on $targetTaskPath")
-
-                    task.doLast {
-                    // 获取 buildDir (AGP 8.x 标准 API)
-                    val buildDir = skinProject.layout.buildDirectory.get().asFile
+                
+                task.doLast {
+                    // 兼容性获取 buildDir
+                    val buildDir = try {
+                        skinProject.layout.buildDirectory.get().asFile
+                    } catch (e: Throwable) {
+                        skinProject.buildDir
+                    }
                     
                     val outputsDir = File(buildDir, "outputs")
                     val intermediatesApkDir = File(buildDir, "intermediates/apk")
                     
-                    // 判断当前是否是由 IDE 触发的 "Run App" (通常不包含 assemble 完整任务，或者为了加速直接部署)
-                    // 或者我们可以简单地通过检查 outputs 目录是否有 APK 来决定策略：
-                    // 如果 outputs 下有 APK，说明刚执行过完整构建，优先用 outputs。
-                    // 如果 outputs 下没有 APK，但 intermediates 下有，说明可能是一次增量构建或 Run App，此时降级使用 intermediates。
-                    // 
-                    // 但用户的需求是：
-                    // 1. "仅仅 run app 模式" -> 优先 intermediates
-                    // 2. "执行 copySkinDebugApk" (手动或 Release 依赖) -> 必须从 outputs 获取
-                    //
-                    // 如何区分 "Run App" 和 "Execute copySkinDebugApk"？
-                    // 其实 Run App 最终也会触发 copySkinDebugApk (如果挂载了)。
-                    // 区别可能在于：Run App 时，skinProject 可能并没有执行完整的 assembleDebug，只执行了部分任务生成了 intermediates。
-                    // 而当我们显式依赖 assembleDebug 时，outputs 应该会被生成。
-                    //
-                    // 策略调整：
-                    // 始终先找 outputs。如果 outputs 有，那最好。
-                    // 如果 outputs 没有（说明 assembleDebug 没生成 outputs，可能是一次快速的增量构建），再去找 intermediates。
-                    // 这样既满足了 "完整构建用 outputs"，也满足了 "Run App (如果没有生成 outputs) 用 intermediates"。
+                    // 判断构建意图
+                    val startTaskNames = project.gradle.startParameter.taskNames
+                    val isExplicitBuild = startTaskNames.any { 
+                        it.contains("assemble") || it.contains("copySkinDebugApk") || it.contains("build") 
+                    }
+                    
+                    println("SkinPlugin Debug: Start tasks: $startTaskNames, isExplicitBuild: $isExplicitBuild")
                     
                     val potentialDirs = mutableListOf<File>()
-                    potentialDirs.add(File(outputsDir, "apk")) // 优先级1：标准输出
-                    potentialDirs.add(outputsDir)              // 优先级2：outputs 根目录
-                    potentialDirs.add(intermediatesApkDir)     // 优先级3：中间产物 (仅当 outputs 缺失时使用)
+                    potentialDirs.add(File(outputsDir, "apk")) // 优先级1
+                    potentialDirs.add(outputsDir)              // 优先级2
                     
-                    // 调试日志：打印 potentialDirs 状态
-                    // println("SkinPlugin Debug: Checking potential dirs: ${potentialDirs.map { "${it.absolutePath} (exists=${it.exists()})" }}")
-
-                    // 过滤出存在的目录
-                    val existingDirs = potentialDirs.filter { it.exists() }
+                    if (!isExplicitBuild) {
+                         potentialDirs.add(intermediatesApkDir)     // 优先级3
+                         println("SkinPlugin Debug: Non-explicit build detected, allowing fallback to intermediates.")
+                    } else {
+                        println("SkinPlugin Debug: Explicit build detected, STRICTLY searching outputs only.")
+                    }
+                    
+                    // 调试日志
+                    println("SkinPlugin Debug: Checking potential dirs: ${potentialDirs.map { it.absolutePath }}")
 
                     var apkFile: File? = null
                     
-                    for (dir in existingDirs) {
-                        apkFile = dir.walkTopDown()
-                            .onEnter { d ->
-                                // 严格过滤：不进入 generated, tmp
-                                // 对于 intermediates，只有当我们正在搜索 intermediatesApkDir 时才允许进入
-                                val name = d.name
-                                if (name == "generated" || name == "tmp") return@onEnter false
-                                
-                                // 如果我们在搜索 outputs，遇到 intermediates 应该跳过
-                                if (name == "intermediates" && !dir.absolutePath.contains("intermediates")) return@onEnter false
-                                
-                                true
-                            }
-                            .filter { file -> 
-                                file.isFile && 
-                                file.name.endsWith(".apk") && 
-                                !file.name.contains("-unaligned") &&
-                                (file.name.contains("debug", ignoreCase = true) || 
-                                 file.absolutePath.contains("${File.separator}debug${File.separator}", ignoreCase = true))
-                            }
+                    // 显式构建且 outputs/apk 不存在时，先尝试将 intermediates 的产物物化到 outputs
+                    val outputsApkDir = File(outputsDir, "apk")
+                    if (isExplicitBuild && !outputsApkDir.exists()) {
+                        val fallbackFileEarly = intermediatesApkDir.walkTopDown()
+                            .filter { it.isFile && it.name.endsWith(".apk") && it.name.contains("debug", ignoreCase = true) }
                             .maxByOrNull { it.lastModified() }
-                        
-                        if (apkFile != null) {
-                            break
+                        if (fallbackFileEarly != null) {
+                            val outputsApkVariantDir = File(outputsApkDir, "debug")
+                            if (!outputsApkVariantDir.exists()) outputsApkVariantDir.mkdirs()
+                            val materialized = File(outputsApkVariantDir, fallbackFileEarly.name)
+                            fallbackFileEarly.copyTo(materialized, overwrite = true)
+                            println("SkinPlugin: Materialized APK to outputs: ${materialized.absolutePath}")
+                            apkFile = materialized
+                        }
+                    }
+                    
+                    // 核心循环：按优先级搜索
+                    if (apkFile == null) {
+                        for (dir in potentialDirs) {
+                            if (!dir.exists()) {
+                                println("SkinPlugin Debug: Dir does not exist, skipping: ${dir.absolutePath}")
+                                continue
+                            }
+                            println("SkinPlugin Debug: Searching in ${dir.absolutePath}")
+                            val foundInThisDir = dir.walkTopDown()
+                                .onEnter { d ->
+                                    val name = d.name
+                                    if (name == "generated" || name == "tmp") return@onEnter false
+                                    if (name == "intermediates" && !dir.absolutePath.contains("intermediates")) {
+                                        return@onEnter false
+                                    }
+                                    true
+                                }
+                                .filter { file ->
+                                    file.isFile &&
+                                    file.name.endsWith(".apk") &&
+                                    !file.name.contains("-unaligned") &&
+                                    (file.name.contains("debug", ignoreCase = true) ||
+                                     file.absolutePath.contains("${File.separator}debug${File.separator}", ignoreCase = true))
+                                }
+                                .maxByOrNull { it.lastModified() }
+                            if (foundInThisDir != null) {
+                                apkFile = foundInThisDir
+                                println("SkinPlugin Debug: Found candidate in ${dir.absolutePath} -> ${apkFile.absolutePath}")
+                                break
+                            } else {
+                                println("SkinPlugin Debug: No APK found in ${dir.absolutePath}")
+                            }
                         }
                     }
 
@@ -125,13 +157,35 @@ class SkinPlugin : Plugin<Project> {
                         apkFile.copyTo(destFile, overwrite = true)
                         println("SkinPlugin: Copied ${apkFile.name} to ${destFile.absolutePath}")
                     } else {
-                        println("SkinPlugin: No apk found in ${existingDirs.map { it.absolutePath }}")
-                        // 如果 existingDirs 为空，说明 outputs 目录可能根本没生成，打印一下 buildDir 状态
-                        if (existingDirs.isEmpty()) {
-                            println("SkinPlugin: Warning - No output directories found. Build dir exists: ${buildDir.exists()}")
-                            if (buildDir.exists()) {
-                                println("SkinPlugin: Build dir content: ${buildDir.list()?.joinToString()}")
-                            }
+                        println("SkinPlugin: No apk found in ${potentialDirs.map { it.absolutePath }}")
+                        
+                        if (isExplicitBuild) {
+                             // 尝试去 intermediates 看看有没有，如果有，证明是 AGP 没给 outputs
+                             val fallbackFile = intermediatesApkDir.walkTopDown().find { it.isFile && it.name.endsWith(".apk") && it.name.contains("debug", ignoreCase = true) }
+                             if (fallbackFile != null) {
+                                 // 显式构建要求只读 outputs；如果 outputs 中没有，则将 intermediates 的产物“物化”到 outputs
+                                 val outputsApkVariantDir = File(outputsDir, "apk${File.separator}debug")
+                                 if (!outputsApkVariantDir.exists()) {
+                                     outputsApkVariantDir.mkdirs()
+                                 }
+                                 val materialized = File(outputsApkVariantDir, fallbackFile.name)
+                                 fallbackFile.copyTo(materialized, overwrite = true)
+                                 println("SkinPlugin: Materialized APK to outputs: ${materialized.absolutePath}")
+                                 // 继续后续复制流程使用 outputs 中的物化文件
+                                 val assetsDir = File(project.projectDir, extension.assetsDir)
+                                 if (!assetsDir.exists()) {
+                                     assetsDir.mkdirs()
+                                 }
+                                 val destFile = File(assetsDir, extension.targetApkName)
+                                 materialized.copyTo(destFile, overwrite = true)
+                                 println("SkinPlugin: Copied ${materialized.name} to ${destFile.absolutePath}")
+                                 return@doLast
+                             }
+                        }
+                        
+                        println("SkinPlugin: Warning - No APK found. Build dir exists: ${buildDir.exists()}")
+                        if (buildDir.exists()) {
+                            println("SkinPlugin: Build dir content: ${buildDir.list()?.joinToString()}")
                         }
                     }
                 }
@@ -157,6 +211,34 @@ class SkinPlugin : Plugin<Project> {
                     // 忽略找不到任务的异常
                 }
             }
+            
+            // 更早的挂载点：确保在整个 Release 构建早期阶段就执行复制任务
+            try {
+                project.tasks.named("preReleaseBuild") {
+                    it.dependsOn(copySkinTask)
+                    println("SkinPlugin: Hooked into preReleaseBuild")
+                }
+            } catch (_: Exception) {}
+            try {
+                project.tasks.named("assembleRelease") {
+                    it.dependsOn(copySkinTask)
+                    println("SkinPlugin: Hooked into assembleRelease")
+                }
+            } catch (_: Exception) {}
+            
+            // 当 app_skin 的 debug 打包完成后立刻触发复制（跨工程挂载）
+            try {
+                skinProject.tasks.named("packageDebug") {
+                    it.finalizedBy(copySkinTask)
+                    println("SkinPlugin: Finalized by packageDebug")
+                }
+            } catch (_: Exception) {}
+            try {
+                skinProject.tasks.named("assembleDebug") {
+                    it.finalizedBy(copySkinTask)
+                    println("SkinPlugin: Finalized by assembleDebug")
+                }
+            } catch (_: Exception) {}
             
             // 【新增】尝试挂载到 Debug 变体（可选）
             // 如果用户希望在 Run App (Debug) 时也自动更新皮肤包，可以解开下面的逻辑

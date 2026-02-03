@@ -5,19 +5,19 @@ plugins {
     id 'java-gradle-plugin'
 }
 
-targetCompatibility = JavaVersion.VERSION_17
-sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_11
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "11"
     }
 }
 
 dependencies {
-    compileOnly 'com.android.tools.build:gradle:8.7.0'
-    compileOnly 'com.android.tools:common:31.7.0'
-    compileOnly 'commons-io:commons-io:2.15.1'
+    compileOnly 'com.android.tools.build:gradle:7.2.0'
+    compileOnly 'com.android.tools:common:30.2.0'
+    compileOnly 'commons-io:commons-io:2.6'
 }
 
 
