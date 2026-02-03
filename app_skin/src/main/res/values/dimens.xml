@@ -1,0 +1,154 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="nav_header_vertical_spacing">18.4dp</dimen>
+    <dimen name="nav_header_height">207dp</dimen>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">18.4dp</dimen>
+    <dimen name="activity_vertical_margin">18.4dp</dimen>
+    <dimen name="fab_margin">18dp</dimen>
+
+    <!-- main -->
+    <dimen name="dip_1dp">1.1dp</dimen>
+    <dimen name="dip_2dp">2.2dp</dimen>
+    <dimen name="dip_2.5dp">2.5dp</dimen>
+    <dimen name="dip_3dp">3.4dp</dimen>
+    <dimen name="dip_4dp">4.5dp</dimen>
+    <dimen name="dip_5dp">5.6dp</dimen>
+    <dimen name="dip_6dp">6.8dp</dimen>
+    <dimen name="dip_7dp">7.9dp</dimen>
+    <dimen name="dip_8dp">9dp</dimen>
+    <dimen name="dip_10dp">11.2dp</dimen>
+    <dimen name="dip_11dp">12.4dp</dimen>
+    <dimen name="dip_13dp">14.6dp</dimen>
+    <dimen name="dip_14dp">15.8dp</dimen>
+    <dimen name="dip_15dp">16.9dp</dimen>
+    <dimen name="dip_17dp">19.1dp</dimen>
+    <dimen name="dip_17.5dp">17.5dp</dimen>
+    <dimen name="dip_18dp">20.7dp</dimen>
+    <dimen name="dip_20dp">22.5dp</dimen>
+    <dimen name="dip_22dp">24.75dp</dimen>
+    <dimen name="dip_24dp">27dp</dimen>
+    <dimen name="dip_25dp">28.1dp</dimen>
+    <dimen name="dip_26dp">29.2dp</dimen>
+    <dimen name="dip_30dp">33.8dp</dimen>
+    <dimen name="dip_33dp">37.1dp</dimen>
+    <dimen name="dip_35dp">39.4dp</dimen>
+    <dimen name="dip_37.5dp">37.5dp</dimen>
+    <dimen name="dip_40dp">45dp</dimen>
+    <dimen name="dip_44dp">49.5dp</dimen>
+    <dimen name="dip_45dp">50.6dp</dimen>
+    <dimen name="dip_50dp">56.2dp</dimen>
+    <dimen name="dip_55dp">61.9dp</dimen>
+    <dimen name="dip_60dp">67.5dp</dimen>
+    <dimen name="dip_65dp">73.1dp</dimen>
+    <dimen name="dip_70dp">78.8dp</dimen>
+    <dimen name="dip_74dp">83.2dp</dimen>
+    <dimen name="dip_75dp">84.4dp</dimen>
+    <dimen name="dip_80dp">90dp</dimen>
+    <dimen name="dip_85dp">95.6dp</dimen>
+    <dimen name="dip_90dp">101.2dp</dimen>
+    <dimen name="dip_95dp">106.9dp</dimen>
+    <dimen name="dip_100dp">112.5dp</dimen>
+    <dimen name="dip_105dp">118.1dp</dimen>
+    <dimen name="dip_110dp">123.8dp</dimen>
+    <dimen name="dip_115dp">129.4dp</dimen>
+    <dimen name="dip_120dp">135dp</dimen>
+    <dimen name="dip_130dp">146.2dp</dimen>
+    <dimen name="dip_135dp">151.9dp</dimen>
+    <dimen name="dip_140dp">157.5dp</dimen>
+    <dimen name="dip_150dp">168.8dp</dimen>
+    <dimen name="dip_160dp">180dp</dimen>
+    <dimen name="dip_165dp">185.625dp</dimen>
+    <dimen name="dip_170dp">191.2dp</dimen>
+    <dimen name="dip_180dp">202.5dp</dimen>
+    <dimen name="dip_185dp">208.1dp</dimen>
+    <dimen name="dip_195dp">219.4dp</dimen>
+    <dimen name="dip_200dp">225dp</dimen>
+    <dimen name="dip_221dp">248.6dp</dimen>
+    <dimen name="dip_224dp">252dp</dimen>
+    <dimen name="dip_230dp">258.8dp</dimen>
+    <dimen name="dip_240dp">270dp</dimen>
+    <dimen name="dip_245dp">275.6dp</dimen>
+    <dimen name="dip_250dp">281.2dp</dimen>
+    <dimen name="dip_260dp">292.5dp</dimen>
+    <dimen name="dip_320dp">360dp</dimen>
+    <dimen name="dip_350dp">393.8dp</dimen>
+
+    <dimen name="TabHeight">56.2dp</dimen>
+    <dimen name="actionBarHeight">49.5dp</dimen>
+    <dimen name="actionBarSize">49.5dp</dimen>
+    <dimen name="actionBarWidth">50.6dp</dimen>
+    <dimen name="toolbarTextSize">33.8px</dimen>
+    <dimen name="underline_height">0.1dp</dimen>
+    <dimen name="divide_width">0.3dp</dimen>
+    <dimen name="divide_height">0.3dp</dimen>
+    <dimen name="divide_">0.5dp</dimen>
+
+    <!-- 字体-->
+    <dimen name="text_8sp">8sp</dimen>
+    <dimen name="text_8dp">8.0dp</dimen>
+    <dimen name="text_9sp">9sp</dimen>
+    <dimen name="text_10sp">10sp</dimen>
+    <dimen name="text_10dp">10.0dp</dimen>
+    <dimen name="text_11sp">11sp</dimen>
+    <dimen name="text_11dp">11.0dp</dimen>
+
+    <dimen name="text_12s">12sp</dimen>
+    <dimen name="text_12sp">12sp</dimen>
+    <dimen name="text_12dp">12.0dp</dimen>
+
+    <dimen name="text_13sp">13sp</dimen>
+    <dimen name="text_13dp">13.0dp</dimen>
+
+    <dimen name="text_14s">14sp</dimen>
+    <dimen name="text_14dp">14.0dp</dimen>
+    <dimen name="text_14sp">14sp</dimen>
+
+    <dimen name="text_15sp">15sp</dimen>
+    <dimen name="text_16sp">16sp</dimen>
+    <dimen name="text_16dp">16.0dp</dimen>
+    <dimen name="text_17sp">17sp</dimen>
+    <dimen name="text_17dp">17.0dp</dimen>
+    <dimen name="text_18sp">18.0sp</dimen>
+    <dimen name="text_18dp">18.0dp</dimen>
+    <dimen name="text_20sp">20sp</dimen>
+    <dimen name="text_24sp">24sp</dimen>
+    <dimen name="text_26sp">26sp</dimen>
+    <dimen name="text_30sp">30sp</dimen>
+
+    <dimen name="text_30dp">30.0dp</dimen>
+
+    <!--友盟-->
+    <dimen name="alphabet_size">12dip</dimen>
+    <dimen name="umeng_socialize_pad_window_height">350dip</dimen>
+    <dimen name="umeng_socialize_pad_window_width">580dip</dimen>
+
+    <dimen name="popmenu_width">80.0dip</dimen>
+    <dimen name="popmenu_yoff">5.0dip</dimen>
+    <dimen name="dip2pix">1.0dip</dimen>
+    <dimen name="app_bar_height">202.5dp</dimen>
+    <dimen name="text_margin">18dp</dimen>
+
+    <!-- 日历控件 -->
+    <dimen name="week_calendar_height">40dp</dimen>
+    <dimen name="month_calendar_height">240dp</dimen>
+    <dimen name="calendar_min_distance">1dp</dimen>
+    <dimen name="auto_scroll_distance">15dp</dimen>
+    <dimen name="dp_5">5dp</dimen>
+    <dimen name="dp_20">20dp</dimen>
+    <dimen name="dp_30">30dp</dimen>
+    <dimen name="dp_18">18dp</dimen>
+    <dimen name="dp_60">60dp</dimen>
+    <dimen name="dp_25">25dp</dimen>
+    <dimen name="dp_15">15dp</dimen>
+    <dimen name="dp_50">50dp</dimen>
+    <dimen name="dp_80">80dp</dimen>
+    <dimen name="dp_70">70dp</dimen>
+    <dimen name="dp_32">32dp</dimen>
+    <dimen name="dp_54">54dp</dimen>
+    <dimen name="dp_35">35dp</dimen>
+
+
+    <!-- 将以上逐渐过度到以下大小 -->
+
+</resources>

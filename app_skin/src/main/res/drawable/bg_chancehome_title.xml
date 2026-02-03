@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 下划线-->
+    <!--<item>-->
+    <!--<shape android:shape="rectangle">-->
+    <!--<solid android:color="@color/underline_color" />-->
+    <!--</shape>-->
+    <!--</item>-->
+
+    <!-- 绘制底色bgColor-->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/bgColor" />
+        </shape>
+    </item>
+
+    <!-- 绘制白底色距离独步0.5dp的控件画线 -->
+    <item android:bottom="0.5dp">
+        <shape android:shape="rectangle">
+            <corners
+                android:topLeftRadius="@dimen/dip_10dp"
+                android:topRightRadius="@dimen/dip_10dp" />
+
+            <solid android:color="@color/colorWhite" />
+        </shape>
+    </item>
+
+</layer-list>

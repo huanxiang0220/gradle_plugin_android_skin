@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+    <item
+        android:id="@android:id/background"
+        android:drawable="@mipmap/rating_bar_1" />
+
+    <!-- 必须使用此id,drawable为 半选中 状态的图片 -->
+    <item
+        android:id="@android:id/secondaryProgress"
+        android:drawable="@mipmap/rating_bar_6"/>
+    <item
+        android:id="@android:id/progress"
+        android:drawable="@mipmap/rating_bar_4"/>
+</layer-list>

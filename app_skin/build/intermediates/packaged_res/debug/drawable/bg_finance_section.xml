@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:paddingTop="@dimen/dip_5dp">
+
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/colorf6f6f6" />
+        </shape>
+    </item>
+
+    <item android:top="@dimen/dip_5dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/colorWhite" />
+        </shape>
+    </item>
+
+</layer-list>

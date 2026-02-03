@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--5.2.0-->
+    <color name="comm_333333_CCCCCC">#CCCCCC</color>
+    <color name="comm_CCCCCC_666666">#666666</color>
+    <color name="comm_666666_A7A7A7">#A7A7A7</color>
+    <color name="comm_666666_999999">#999999</color>
+    <color name="comm_999999_999999">#999999</color>
+    <color name="comm_999999_666666">#666666</color>
+    <color name="comm_FFFFFF_FFFFFF">#FFFFFF</color>
+    <color name="comm_FFFFFF_333333">#333333</color>
+    <color name="comm_FFFFFF_1A202D">#1A202D</color>
+    <color name="comm_EEEEEE_666666">#666666</color>
+    <color name="comm_EEEEEE_303643">#303643</color>
+    <color name="comm_EEEEEE_1A202D">#1A202D</color>
+    <color name="comm_0074FE_3C8FF4">#3C8FF4</color>
+    <color name="comm_F95A5A_CA4040">#CA4040</color>
+    <color name="comm_FB6B00_C96E43">#C96E43</color>
+    <color name="comm_D93B3B_CA4040">#CA4040</color>
+    <color name="comm_F4F4F4_1A202D">#1A202D</color>
+    <color name="comm_F7F7F7_1A202D">#1A202D</color>
+    <color name="comm_6E60FF_6E60FF">#6E60FF</color>
+
+    <!-- 带透明度的 -->
+    <color name="comm_0DF95A5A_1ACA4040">#1ACA4040</color>
+
+</resources>

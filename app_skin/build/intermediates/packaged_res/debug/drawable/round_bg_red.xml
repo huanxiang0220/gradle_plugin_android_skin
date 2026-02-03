@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval"
+    android:useLevel="false">
+
+    <solid android:color="@color/toolbar_color" />
+
+    <size
+        android:width="@dimen/dip_20dp"
+        android:height="@dimen/dip_20dp" />
+
+    <padding
+        android:bottom="@dimen/dip_3dp"
+        android:left="@dimen/dip_3dp"
+        android:right="@dimen/dip_3dp"
+        android:top="@dimen/dip_3dp" />
+
+</shape>

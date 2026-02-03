@@ -1,0 +1,227 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+//<editor-fold desc="配置属性读取">
+// 读取在 centralPortal.properties 中配置的发布信息
+def centralPropsFile = project.file('centralPortal.properties')
+if (!centralPropsFile.exists()) {
+    throw new GradleException("未找到 centralPortal.properties（请将文件放在 skin 模块目录下）")
+}
+def props = new Properties()
+try {
+    centralPropsFile.withReader('UTF-8') { reader -> props.load(reader) }
+} catch (Throwable e) {
+    throw new GradleException("读取 centralPortal.properties 失败：${e.message}", e)
+}
+props.each { k, v -> if (!project.hasProperty(k)) project.ext.set(k, v) }
+def maskedKeys = props.keySet().collect { it.toString() }.collect { k ->
+    (k in ['centralPortalPassword', 'signingPassword']) ? "${k}=***" : k
+}.join(', ')
+logger.quiet("✅ 已加载 centralPortal.properties: ${maskedKeys}")
+
+// 从根项目属性统一读取 group/version（可由 gradle.properties 或 centralPortal.properties 提供）
+group = (project.findProperty('GROUP') ?: 'io.github.huanxiang0220')
+
+version = (project.findProperty('VERSION_NAME') ?: '2.0.10')
+//</editor-fold>
+
+//组件插件配置
+gradlePlugin {
+    plugins {
+        skin {
+            // 组件插件id
+            id = 'com.mystery.plugin.skin'
+            implementationClass = 'com.mystery.skin.SkinPlugin'
+            displayName = 'Android Gradle Skin plugin'
+            description = 'A Gradle plugin which enables Skin for Android builds. Supports Kotlin, aar, jar skin.'
+        }
+    }
+}
+
+java {
+    // Maven Central 要求必须有源码和 Javadoc Jar
+    withJavadocJar()
+    withSourcesJar()
+}
+
+//发布配置
+publishing {
+    publications {
+        // 使用 java-gradle-plugin 生成的 pluginMaven publication 作为发布对象
+        pluginMaven(MavenPublication) {
+            groupId = (project.findProperty('GROUP') ?: project.group)
+            artifactId = (project.findProperty('ARTIFACT_ID') ?: 'gradle-plugin-skin')
+            version = (project.findProperty('VERSION_NAME') ?: project.version)
+
+            // pom信息：，用于仓库页面展示、依赖报告、人类可读的名称。
+            pom {
+                //不强制一致。Maven Central 的校验要求必须有 name，但不要求等于 artifactId。
+                name = 'gradle-plugin-skin'
+                description = 'A Gradle plugin which enables Skin for Android builds. Supports Kotlin, aar, jar skin.'
+                url = 'https://github.com/huanxiang0220/gradle_plugin_skin'
+                licenses {
+                    license {
+                        name = 'The Apache Software License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution = 'repo'
+                    }
+                }
+                // 不强制一致。Maven Central 的校验要求必须有 name，但不要求等于 artifactId。
+                developers {
+                    developer {
+                        id = 'huanxiang0220'
+                        name = 'huanxiang0220'
+                        email = 'tang19910220@sian.cn'
+                    }
+                }
+                // scm建议必须配置，且应指向真实的代码仓库；不要求与artifactId“同名”，
+                // 但url、connection、developerConnection最好与实际仓库保持一致，否则门户展示和自动链接会失效或被判定为低质量元数据。
+                scm {
+                    url = 'https://github.com/huanxiang0220/gradle_plugin_skin'
+                    connection = 'scm:git:git://github.com/huanxiang0220/gradle_plugin_skin.git'
+                    developerConnection = 'scm:git:ssh://github.com/huanxiang0220/gradle_plugin_skin.git'
+                }
+            }
+        }
+    }
+
+    repositories {
+        // 1）本地 maven 仓库：方便本地调试（保留）
+        maven {
+            name = 'LocalMaven'
+            def localRepoDir = "${rootProject.buildDir}/local-maven"
+            url = uri(localRepoDir)
+            println("publish to local maven dir=$localRepoDir")
+        }
+
+        // 2）新版 Central Publishing Portal
+        // 参考: https://central.sonatype.org/publish/publish-portal-gradle/
+        maven {
+            name = 'CentralPortal'
+            // 新版 Central Publishing Portal 的上传端点
+            url = uri('https://central.sonatype.com/api/v1/publisher/upload')
+
+            // TODO(你需要在 centralPortal.properties 或环境变量中配置):
+            // centralPortalUsername=你的 Central Portal 用户名或 token
+            // centralPortalPassword=你的 Central Portal 密码或 token
+            credentials {
+                def ep = project.extensions.extraProperties
+                username = ep.has('centralPortalUsername') ? String.valueOf(ep.get('centralPortalUsername')) : ""
+                password = ep.has('centralPortalPassword') ? String.valueOf(ep.get('centralPortalPassword')) : ""
+            }
+
+            // 设置正确的 Content-Type
+            authentication {
+                basic(BasicAuthentication)
+            }
+        }
+    }
+}
+
+signing {
+    def epKey = project.extensions.extraProperties
+    def keyFilePath = (epKey.has('signingKeyFile') ? String.valueOf(epKey.get('signingKeyFile')) : project.findProperty("signingKeyFile")) ?: "${projectDir}/gpg.asc"
+    def keyFile = file(keyFilePath)
+
+    if (keyFile.exists()) {
+        def keyText = keyFile.text
+
+        // 验证是否是私钥文件
+        if (!keyText.contains("BEGIN PGP PRIVATE KEY BLOCK")) {
+            throw new GradleException("""
+                ❌ GPG 密钥文件格式错误！
+                
+                文件位置: ${keyFile.absolutePath}
+                
+                当前文件包含的是公钥（PUBLIC KEY），但签名需要私钥（PRIVATE KEY）。
+                
+                请使用以下命令导出私钥：
+                gpg --armor --export-secret-keys D8C58269 > ${keyFile.absolutePath}
+                
+                或使用 Kleopatra GUI：
+                1. 右键点击密钥
+                2. 选择 "Export Secret Keys..."
+                3. 保存为 ${keyFile.absolutePath}
+            """.stripIndent())
+        }
+
+        def signingPassword = null
+        def ep = project.extensions.extraProperties
+        if (ep.has('signingPassword')) {
+            signingPassword = String.valueOf(ep.get('signingPassword')).trim()
+        } else {
+            def cp = project.file('centralPortal.properties')
+            if (cp.exists()) {
+                def cpProps = new Properties()
+                cp.withReader('UTF-8') { reader -> cpProps.load(reader) }
+                if (cpProps.containsKey('signingPassword')) {
+                    signingPassword = String.valueOf(cpProps.getProperty('signingPassword')).trim()
+                    logger.quiet("ℹ️ 回退读取 centralPortal.properties 中的 signingPassword 成功")
+                } else {
+                    logger.warn("⚠️ centralPortal.properties 中未发现 signingPassword 键")
+                }
+            } else {
+                logger.warn("⚠️ 未找到 centralPortal.properties 文件用于回退读取")
+            }
+        }
+        if (!signingPassword || signingPassword.isEmpty()) {
+            logger.warn("⚠️ 未配置签名密码！请在 centralPortal.properties 中设置 signingPassword")
+        } else {
+            useInMemoryPgpKeys(keyText, signingPassword ?: "")
+            logger.quiet("✅ GPG 签名配置成功：${keyFile.name}")
+        }
+    } else {
+        logger.warn("""
+            ⚠️  GPG 密钥文件未找到！
+            
+            期望位置: ${keyFile.absolutePath}
+            
+            签名将被跳过（仅用于本地测试）。
+            
+            如需发布到 Maven Central，请先导出私钥：
+            gpg --armor --export-secret-keys D8C58269 > ${keyFile.absolutePath}
+        """.stripIndent())
+        // 如果没有 GPG 密钥文件，跳过签名（仅用于本地测试）
+        required = false
+    }
+
+    // 对 pluginMaven publication 做签名（Maven Central 要求）
+    sign publishing.publications.pluginMaven
+}
+
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+    // 忽略 Javadoc 警告
+    options.addStringOption('Xdoclint:none', '-quiet')
+}
+
+// 发布任务说明
+tasks.register('publishInfo') {
+    doLast {
+        println """
+        ========================================
+        Maven Central 发布说明
+        ========================================
+        
+        1. 本地测试发布:
+           ./gradlew :skin:publishPluginMavenPublicationToLocalMavenRepository
+           
+        2. 发布到 Central Portal:
+           ./gradlew :skin:publishPluginMavenPublicationToCentralPortalRepository
+           
+        3. 发布所有仓库:
+           ./gradlew :skin:publish
+           
+        注意事项:
+        - 确保已在 centralPortal.properties 中配置 centralPortalUsername 和 centralPortalPassword
+        - 确保已在 centralPortal.properties 中配置 signingPassword 与 signingKeyFile
+        - 确保 gpg.asc 文件存在于 skin 目录下
+        - 版本号: ${version}
+        - Group ID: ${project.group}
+        
+        ========================================
+        """
+    }
+}

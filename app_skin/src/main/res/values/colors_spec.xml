@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--    这里专用记录标签、特殊线的颜色 -->
+    <color name="label_FFA34E">#C96E43</color>
+    <color name="label_4598FF">#3C8FF4</color>
+    <color name="label_FF7373">#CA4040</color>
+    <color name="label_717882">#616B7A</color>
+</resources>

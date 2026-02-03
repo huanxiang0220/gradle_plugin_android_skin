@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false">
+
+    <item
+        android:drawable="@drawable/ic_article_1"
+        android:duration="24" />
+    <item
+        android:drawable="@drawable/ic_article_2"
+        android:duration="24" />
+    <item
+        android:drawable="@drawable/ic_article_3"
+        android:duration="24" />
+    <item
+        android:drawable="@drawable/ic_article_4"
+        android:duration="24" />
+    <item
+        android:drawable="@drawable/ic_article_5"
+        android:duration="24" />
+    <item
+        android:drawable="@drawable/ic_article_6"
+        android:duration="24" />
+    <item
+        android:drawable="@drawable/ic_article_7"
+        android:duration="24" />
+    <item
+        android:drawable="@drawable/ic_article_8"
+        android:duration="24" />
+    <item
+        android:drawable="@drawable/ic_article_9"
+        android:duration="24" />
+    <item
+        android:drawable="@drawable/ic_article_10"
+        android:duration="24" />
+    <item
+        android:drawable="@drawable/ic_article_11"
+        android:duration="24" />
+    <item
+        android:drawable="@drawable/ic_article_12"
+        android:duration="24" />
+    <item
+        android:drawable="@drawable/ic_article_13"
+        android:duration="24" />
+    <item
+        android:drawable="@drawable/ic_article_14"
+        android:duration="24" />
+    <item
+        android:drawable="@drawable/ic_article_15"
+        android:duration="24" />
+    <item
+        android:drawable="@drawable/ic_article_16"
+        android:duration="24" />
+    <item
+        android:drawable="@drawable/ic_article_17"
+        android:duration="24" />
+
+</animation-list>

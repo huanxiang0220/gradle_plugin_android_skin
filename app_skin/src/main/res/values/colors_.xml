@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 这里记录的是非常规的样色，部分背景、线、等样式 统一格式：c_透明度xxx_透明度xxx-->
+    <color name="C_330074FE_903F66A7">#903F66A7</color>
+</resources>

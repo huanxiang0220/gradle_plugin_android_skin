@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/gray_press">
+
+    <!--
+    可以设置android:id="@android:id/mask"来设定当前的Ripple的mask
+    ,mask的内容并不会渲染到屏幕上，他的作用只是限定Ripple效果的绘制区域
+    -->
+    <item
+        android:id="@android:id/mask"
+        android:drawable="@color/colorGray_light" />
+
+</ripple>

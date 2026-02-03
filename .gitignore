@@ -1,0 +1,11 @@
+/build/
+/skin_plugin/build/
+/skin_plugin/bin/
+/app/.gradle/
+/app/build/
+/skin_plugin/.gradle/
+/skin_plugin/bin/
+/skin_plugin/build/
+/.gradle/
+/.idea/
+/.vscode/

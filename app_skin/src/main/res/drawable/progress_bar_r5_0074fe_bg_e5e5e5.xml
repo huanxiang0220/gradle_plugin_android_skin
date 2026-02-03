@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 背景  gradient是渐变,corners定义的是圆角 -->
+    <item android:id="@android:id/background">
+        <shape
+            android:shape="rectangle">
+            <!-- solid指定形状的填充色，只有android:color一个属性 -->
+            <solid android:color="@color/B_WDJD_1" />
+            <!-- padding设置内容区域离边界的间距 -->
+            <!-- corners设置圆角，只适用于rectangle -->
+            <corners android:radius="@dimen/c5"/>
+        </shape>
+    </item>
+
+    <item android:id="@android:id/secondaryProgress">
+        <scale android:scaleWidth="100%">
+            <shape>
+                <corners android:topRightRadius="20dp"
+                    android:bottomRightRadius="20dp"/>
+                <solid android:color="@color/Theme4"/>
+            </shape>
+        </scale>
+    </item>
+    <!-- 进度条 -->
+    <item android:id="@android:id/progress">
+        <scale android:scaleWidth="100%"
+            android:drawable="@drawable/bg_0074fe_radius5"   />
+    </item>
+
+</layer-list>

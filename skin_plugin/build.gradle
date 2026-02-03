@@ -1,0 +1,47 @@
+plugins {
+    // 引入kotlin
+    id 'org.jetbrains.kotlin.jvm'
+    // 添加 java-gradle-plugin 以支持作为 Gradle 插件使用
+    id 'java-gradle-plugin'
+}
+
+targetCompatibility = JavaVersion.VERSION_17
+sourceCompatibility = JavaVersion.VERSION_17
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+}
+
+// agp对应的其它依赖版本
+def agpDependencies = [
+        '8.7.0': [
+                'com.android.tools.build:gradle:8.7.0',
+                'com.android.tools:common:31.7.0',
+                'commons-io:commons-io:2.15.1'
+        ],
+        '7.2.0': [
+                'com.android.tools.build:gradle:7.2.0',
+                'com.android.tools:common:30.2.0',
+                'commons-io:commons-io:2.6'
+        ]
+]
+
+dependencies {
+
+    // 依赖AGP 8.7.0+ (优先使用新版本)
+    agpDependencies['8.7.0'].each {
+        compileOnly(it)
+    }
+    
+    // 兼容 AGP 7.x
+    agpDependencies['7.2.0'].each {
+        compileOnly(it)
+    }
+
+}
+
+
+// 引用发布到maven插件
+apply from: 'plugin_maven_publish.gradle'
