@@ -75,7 +75,7 @@ class SkinPlugin : Plugin<Project> {
                         it.contains("assemble") || it.contains("copySkinDebugApk") || it.contains("build") 
                     }
                     
-                    println("SkinPlugin Debug: Start tasks: $startTaskNames, isExplicitBuild: $isExplicitBuild")
+                    
                     
                     val potentialDirs = mutableListOf<File>()
                     potentialDirs.add(File(outputsDir, "apk")) // 优先级1
@@ -89,7 +89,7 @@ class SkinPlugin : Plugin<Project> {
                     }
                     
                     // 调试日志
-                    println("SkinPlugin Debug: Checking potential dirs: ${potentialDirs.map { it.absolutePath }}")
+                    
 
                     var apkFile: File? = null
                     
@@ -104,7 +104,7 @@ class SkinPlugin : Plugin<Project> {
                             if (!outputsApkVariantDir.exists()) outputsApkVariantDir.mkdirs()
                             val materialized = File(outputsApkVariantDir, fallbackFileEarly.name)
                             fallbackFileEarly.copyTo(materialized, overwrite = true)
-                            println("SkinPlugin: Materialized APK to outputs: ${materialized.absolutePath}")
+                            
                             apkFile = materialized
                         }
                     }
@@ -113,10 +113,8 @@ class SkinPlugin : Plugin<Project> {
                     if (apkFile == null) {
                         for (dir in potentialDirs) {
                             if (!dir.exists()) {
-                                println("SkinPlugin Debug: Dir does not exist, skipping: ${dir.absolutePath}")
                                 continue
                             }
-                            println("SkinPlugin Debug: Searching in ${dir.absolutePath}")
                             val foundInThisDir = dir.walkTopDown()
                                 .onEnter { d ->
                                     val name = d.name
@@ -136,17 +134,13 @@ class SkinPlugin : Plugin<Project> {
                                 .maxByOrNull { it.lastModified() }
                             if (foundInThisDir != null) {
                                 apkFile = foundInThisDir
-                                println("SkinPlugin Debug: Found candidate in ${dir.absolutePath} -> ${apkFile.absolutePath}")
                                 break
-                            } else {
-                                println("SkinPlugin Debug: No APK found in ${dir.absolutePath}")
                             }
                         }
                     }
 
                     if (apkFile != null) {
                         println("SkinPlugin: Found APK: ${apkFile.absolutePath}")
-                        println("SkinPlugin: APK Last Modified: ${java.util.Date(apkFile.lastModified())}")
                         
                         val assetsDir = File(project.projectDir, extension.assetsDir)
                         if (!assetsDir.exists()) {
@@ -155,10 +149,7 @@ class SkinPlugin : Plugin<Project> {
                         // 目标文件名
                         val destFile = File(assetsDir, extension.targetApkName)
                         apkFile.copyTo(destFile, overwrite = true)
-                        println("SkinPlugin: Copied ${apkFile.name} to ${destFile.absolutePath}")
                     } else {
-                        println("SkinPlugin: No apk found in ${potentialDirs.map { it.absolutePath }}")
-                        
                         if (isExplicitBuild) {
                              // 尝试去 intermediates 看看有没有，如果有，证明是 AGP 没给 outputs
                              val fallbackFile = intermediatesApkDir.walkTopDown().find { it.isFile && it.name.endsWith(".apk") && it.name.contains("debug", ignoreCase = true) }
@@ -170,22 +161,15 @@ class SkinPlugin : Plugin<Project> {
                                  }
                                  val materialized = File(outputsApkVariantDir, fallbackFile.name)
                                  fallbackFile.copyTo(materialized, overwrite = true)
-                                 println("SkinPlugin: Materialized APK to outputs: ${materialized.absolutePath}")
-                                 // 继续后续复制流程使用 outputs 中的物化文件
+                                 println("SkinPlugin: Found APK: ${materialized.absolutePath}")
                                  val assetsDir = File(project.projectDir, extension.assetsDir)
                                  if (!assetsDir.exists()) {
                                      assetsDir.mkdirs()
                                  }
                                  val destFile = File(assetsDir, extension.targetApkName)
                                  materialized.copyTo(destFile, overwrite = true)
-                                 println("SkinPlugin: Copied ${materialized.name} to ${destFile.absolutePath}")
                                  return@doLast
                              }
-                        }
-                        
-                        println("SkinPlugin: Warning - No APK found. Build dir exists: ${buildDir.exists()}")
-                        if (buildDir.exists()) {
-                            println("SkinPlugin: Build dir content: ${buildDir.list()?.joinToString()}")
                         }
                     }
                 }
