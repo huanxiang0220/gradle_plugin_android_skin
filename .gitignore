@@ -9,3 +9,5 @@
 /.vscode/
 skin_plugin/centralPortal.properties
 skin_plugin/gpg.asc
+/app_skin/build/
+/app_skin/.gradle/
