@@ -5,13 +5,12 @@ buildscript {
         google()
         mavenCentral()
         gradlePluginPortal()
-    }
     dependencies {
-        // AGP 7.1.3
-        classpath 'com.android.tools.build:gradle:7.1.3'
+        // AGP 8.7.0
+        classpath 'com.android.tools.build:gradle:8.7.0'
         // Kotlin Gradle plugin
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10"
-        classpath 'io.github.huanxiang0220:gradle-plugin-skin:1.0.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22"
+    }//        classpath 'io.github.huanxiang0220:gradle-plugin-skin:1.0.1'
     }
 }
 

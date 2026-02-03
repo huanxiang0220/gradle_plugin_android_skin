@@ -14,3 +14,4 @@
 /skin_plugin/.gradle/
 skin_plugin/centralPortal.properties
 skin_plugin/gpg.asc
+/app/src/main/assets/app_skin_debug.apk
