@@ -4,8 +4,8 @@
 /app/.gradle/
 /app/build/
 /skin_plugin/.gradle/
-/skin_plugin/bin/
-/skin_plugin/build/
 /.gradle/
 /.idea/
 /.vscode/
+skin_plugin/centralPortal.properties
+skin_plugin/gpg.asc
